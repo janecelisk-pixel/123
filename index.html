@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buzón de Amor 💌</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Brush Script MT', 'Segoe Script', cursive;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffc9e5 50%, #ffb3d9 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Corazones flotantes de fondo */
+        .hearts-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 30px;
+            opacity: 0.3;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        /* Pantalla de Login */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 10px 50px rgba(255, 105, 180, 0.4);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+            border: 5px solid #ff69b4;
+            position: relative;
+        }
+
+        .login-box::before {
+            content: '💕';
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 60px;
+            animation: heartBeat 1.5s infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.2); }
+        }
+
+        .login-box h1 {
+            color: #ff1493;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.3);
+        }
+
+        .login-box p {
+            color: #ff69b4;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 18px;
+            border: 3px solid #ffb3d9;
+            border-radius: 15px;
+            font-size: 18px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #ff1493;
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.3);
+        }
+
+        .login-input.error {
+            border-color: #ff1493;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-15px); }
+            75% { transform: translateX(15px); }
+        }
+
+        .error-msg {
+            color: #ff1493;
+            font-size: 16px;
+            margin-bottom: 20px;
+            display: none;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.3);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.5);
+        }
+
+        /* Pantalla Principal */
+        .main-screen {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            color: #ff1493;
+            font-size: 3.5em;
+            text-shadow: 3px 3px 6px rgba(255, 105, 180, 0.4);
+            margin-bottom: 10px;
+        }
+
+        .logout-btn {
+            background: white;
+            color: #ff1493;
+            padding: 12px 30px;
+            border: 3px solid #ff69b4;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #ff69b4;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Buzón */
+        .mailbox-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .mailbox {
+            background: linear-gradient(135deg, #fff0f7 0%, #ffe6f2 100%);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(255, 105, 180, 0.3);
+            border: 5px solid #ffb3d9;
+            position: relative;
+        }
+
+        .mailbox::before {
+            content: '📮';
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 80px;
+        }
+
+        .mailbox-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 30px;
+        }
+
+        .mailbox-header h2 {
+            color: #ff1493;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .mailbox-count {
+            color: #ff69b4;
+            font-size: 1.3em;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Cartas */
+        .letters-container {
+            display: grid;
+            gap: 25px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .letters-container::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .letters-container::-webkit-scrollbar-track {
+            background: #ffe6f2;
+            border-radius: 10px;
+        }
+
+        .letters-container::-webkit-scrollbar-thumb {
+            background: #ff69b4;
+            border-radius: 10px;
+        }
+
+        .letter {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(255, 105, 180, 0.2);
+            border: 3px solid #ffb3d9;
+            position: relative;
+            animation: slideIn 0.5s ease;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .letter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .letter-corner {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 40px;
+        }
+
+        .letter-from {
+            color: #ff1493;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .letter-date {
+            color: #ff69b4;
+            font-size: 1em;
+            margin-bottom: 20px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .letter-preview {
+            color: #666;
+            font-size: 1.2em;
+            line-height: 1.6;
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            border-left: 4px solid #ffb3d9;
+            padding-left: 15px;
+        }
+
+        /* Modal de Carta Completa */
+        .letter-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 20, 147, 0.3);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .letter-modal.show {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .letter-full {
+            background: white;
+            border-radius: 25px;
+            padding: 50px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 60px rgba(255, 20, 147, 0.5);
+            border: 5px solid #ff69b4;
+            position: relative;
+            animation: popIn 0.4s ease;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff1493;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            transform: rotate(90deg) scale(1.1);
+            background: #ff69b4;
+        }
+
+        .letter-full-from {
+            color: #ff1493;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .letter-full-date {
+            color: #ff69b4;
+            font-size: 1.1em;
+            text-align: center;
+            margin-bottom: 30px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .letter-full-content {
+            color: #333;
+            font-size: 1.4em;
+            line-height: 1.8;
+            font-family: 'Georgia', serif;
+            white-space: pre-wrap;
+            text-align: justify;
+            padding: 20px;
+            border: 2px dashed #ffb3d9;
+            border-radius: 15px;
+            background: #fffafd;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #ff69b4;
+        }
+
+        .empty-state h3 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            font-size: 1.3em;
+            font-family: 'Arial', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- Corazones de fondo -->
+    <div class="hearts-bg" id="heartsBg"></div>
+
+    <!-- Pantalla de Login -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <h1>💖 Buzón de Amor 💖</h1>
+            <p>Ingresa la clave secreta del corazón</p>
+            <input type="password" class="login-input" id="passwordInput" placeholder="Contraseña de amor...">
+            <div class="error-msg" id="errorMsg">💔 Contraseña incorrecta. Inténtalo de nuevo.</div>
+            <button class="login-btn" onclick="login()">💕 Abrir Buzón 💕</button>
+        </div>
+    </div>
+
+    <!-- Pantalla Principal -->
+    <div class="main-screen" id="mainScreen">
+        <div class="header">
+            <h1>💌 Mi Buzón de Amor 💌</h1>
+            <button class="logout-btn" onclick="logout()">🚪 Cerrar Buzón</button>
+        </div>
+
+        <div class="mailbox-container">
+            <div class="mailbox">
+                <div class="mailbox-header">
+                    <h2>Cartas Recibidas</h2>
+                    <div class="mailbox-count" id="letterCount">💕 0 cartas de amor 💕</div>
+                </div>
+
+                <div class="letters-container" id="lettersContainer">
+                    <div class="empty-state">
+                        <h3>💌 Buzón vacío 💌</h3>
+                        <p>Aún no hay cartas de amor aquí...</p>
+                        <p style="margin-top: 10px; font-size: 1em;">¡Espera a que alguien te escriba! 💕</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Carta Completa -->
+    <div class="letter-modal" id="letterModal" onclick="closeLetterModal(event)">
+        <div class="letter-full" onclick="event.stopPropagation()">
+            <button class="close-modal" onclick="closeLetterModal()">×</button>
+            <div id="letterFullContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const PASSWORD = "PENIBOLAS";
+        let letters = [
+            {
+                id: 1,
+                from: "Tu Admirador Secreto",
+                message: "Cada vez que te veo, mi corazón late más fuerte. Eres la luz que ilumina mis días y la razón de mis sonrisas. No puedo dejar de pensar en ti. 💕",
+                date: new Date(2024, 11, 10, 14, 30)
+            },
+            {
+                id: 2,
+                from: "Alguien Especial",
+                message: "Desde el momento en que te conocí, supe que eras diferente. Tu sonrisa ilumina cualquier habitación y tu risa es la melodía más hermosa. Quiero que sepas que ocupas un lugar muy especial en mi corazón. 💖",
+                date: new Date(2024, 11, 15, 18, 45)
+            },
+            {
+                id: 3,
+                from: "Un Corazón Enamorado",
+                message: "Hay momentos en la vida que te cambian para siempre, y conocerte fue uno de ellos. Eres increíble en todo lo que haces y cada día me sorprendes más. Gracias por existir. 🌹",
+                date: new Date(2024, 11, 17, 20, 15)
+            }
+        ];
+
+        // Crear corazones flotantes
+        function createHearts() {
+            const container = document.getElementById('heartsBg');
+            const hearts = ['💕', '💖', '💗', '💓', '💝', '💘'];
+            
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 15 + 's';
+                heart.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(heart);
+            }
+        }
+
+        createHearts();
+
+        // Login
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+
+        function login() {
+            const input = document.getElementById('passwordInput');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (input.value === PASSWORD) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainScreen').style.display = 'block';
+                input.value = '';
+                errorMsg.classList.remove('show');
+                renderLetters();
+            } else {
+                input.classList.add('error');
+                errorMsg.classList.add('show');
+                setTimeout(() => {
+                    input.classList.remove('error');
+                }, 500);
+                input.value = '';
+            }
+        }
+
+        function logout() {
+            document.getElementById('mainScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        // Renderizar cartas
+        function renderLetters() {
+            const container = document.getElementById('lettersContainer');
+            const count = document.getElementById('letterCount');
+            
+            const plural = letters.length === 1 ? 'carta' : 'cartas';
+            count.textContent = `💕 ${letters.length} ${plural} de amor 💕`;
+
+            if (letters.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>💌 Buzón vacío 💌</h3>
+                        <p>Aún no hay cartas de amor aquí...</p>
+                        <p style="margin-top: 10px; font-size: 1em;">¡Espera a que alguien te escriba! 💕</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = letters.map(letter => `
+                <div class="letter" onclick="openLetter(${letter.id})">
+                    <div class="letter-corner">💌</div>
+                    <div class="letter-from">${letter.from}</div>
+                    <div class="letter-date">${formatDate(letter.date)}</div>
+                    <div class="letter-preview">"${letter.message.substring(0, 100)}${letter.message.length > 100 ? '...' : ''}"</div>
+                </div>
+            `).join('');
+        }
+
+        // Abrir carta completa
+        function openLetter(id) {
+            const letter = letters.find(l => l.id === id);
+            if (!letter) return;
+
+            document.getElementById('letterFullContent').innerHTML = `
+                <div class="letter-full-from">💕 ${letter.from} 💕</div>
+                <div class="letter-full-date">${formatFullDate(letter.date)}</div>
+                <div class="letter-full-content">${letter.message}</div>
+            `;
+
+            document.getElementById('letterModal').classList.add('show');
+        }
+
+        function closeLetterModal(event) {
+            if (!event || event.target.id === 'letterModal') {
+                document.getElementById('letterModal').classList.remove('show');
+            }
+        }
+
+        // Formatear fechas
+        function formatDate(date) {
+            return date.toLocaleDateString('es-MX', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        function formatFullDate(date) {
+            return date.toLocaleDateString('es-MX', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Renderizar cartas al cargar
+        if (document.getElementById('mainScreen').style.display === 'block') {
+            renderLetters();
+        }
+    </script>
+</body>
+</html>
